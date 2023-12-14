@@ -3,4 +3,8 @@
     <string name="app_name">KuantoGanha</string>
     <string name="Login">Entrar</string>
     <string name="Save">Guardar</string>
+    <string name="username">utilizador</string>
+    <string name="welcome">Bem-vindo!</string>
+    <string name="login_failed">Login falhou:</string>
+    <string name="login_successful">Login com successo</string>
 </resources>
