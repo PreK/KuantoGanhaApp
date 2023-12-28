@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">KuantoGanha</string>
-    <string name="Login">Entrar</string>
-    <string name="Save">Guardar</string>
-    <string name="username">utilizador</string>
+    <string name="save">Guardar</string>
+    <string name="logout">Sair</string>
+    <string name="username">Utilizador</string>
     <string name="welcome">Bem-vindo!</string>
     <string name="login_failed">Login falhou:</string>
     <string name="login_successful">Login com successo</string>
+    <string name="please_fill_in_all_fields">Por favor preenche todos os campos</string>
+    <string name="network_error">Erro de rede</string>
+    <string name="register">registar</string>
+    <string name="login">Entrar</string>
+    <string name="ConfirmPassword">Confirmar Password</string>
 </resources>

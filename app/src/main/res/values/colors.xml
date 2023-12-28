@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Cores para o modo claro -->
+    <color name="primary">#007bff</color>
+    <color name="primaryDark">#0056b3</color>
+    <color name="textColorPrimary">#212529</color>
+    <color name="windowBackground">#ffffff</color>
+
+    <!-- Cores para o modo escuro -->
+    <color name="primaryDarkMode">#375a7f</color>
+    <color name="textColorPrimaryDarkMode">#f8f9fa</color>
+    <color name="windowBackgroundDarkMode">#343a40</color>
 </resources>

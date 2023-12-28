@@ -1,14 +1,22 @@
 <resources>
     <string name="app_name">KuantoGanha</string>
-    <string name="Login">Login</string>
-    <string name="Save">Save</string>
-    <string name="login">login</string>
-    <string name="logout">logout</string>
+    <string name="save">Save</string>
+    <string name="logout">Logout</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="username">username</string>
+    <string name="username">Username</string>
     <string name="welcome">Welcome!</string>
     <string name="perfil">Perfil</string>
     <string name="login_failed">Login failed:</string>
     <string name="login_successful">Login Successful</string>
+    <string name="please_fill_in_all_fields">Please fill in all fields</string>
+    <string name="network_error">Network Error</string>
+    <string name="register">Register</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="login">Login</string>
+    <string name="ConfirmPassword">Confirm Password</string>
+    <string name="error_during_registration">Error During Registration</string>
+    <string name="error_fetching_data">Error on Fetching Data</string>
+    <string name="error_processing_data">Error Processing Data</string>
 </resources>

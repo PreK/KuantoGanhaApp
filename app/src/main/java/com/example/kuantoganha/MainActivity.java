@@ -37,7 +37,12 @@ public class MainActivity extends AppCompatActivity {
                         userManager.logout(getApplicationContext());
                         loadFragment(new LoginFragment());
                         return true;
-                    case R.id.nav_perfil:
+                    case R.id.nav_register:
+                        loadFragment(new RegisterFragment());
+                        return true;
+
+                    case R.id.nav_login:
+                        loadFragment(new LoginFragment());
                         return true;
                 }
                 return false;
@@ -76,8 +81,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (isLoggedIn) {
             loadFragment(new HomeFragment()); // Carregar HomeFragment
-        } else {
-            loadFragment(new LoginFragment()); // Carregar LoginFragment
         }
+    }
+
+    public void onRegistrationSuccess() {
+        loadFragment(new LoginFragment());
     }
 }

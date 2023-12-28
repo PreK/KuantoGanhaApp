@@ -60,14 +60,14 @@ public class LoginFragment extends Fragment {
         String password = editTextPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(getActivity(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), getString(R.string.please_fill_in_all_fields), Toast.LENGTH_SHORT).show();
         } else {
             loginUser(username, password);
         }
     }
     private void loginUser(String username, String password) {
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = Config.url;
+        String confUrl = Config.url + "login.php";
 
         JSONObject postData = new JSONObject();
         try {
@@ -77,9 +77,9 @@ public class LoginFragment extends Fragment {
             e.printStackTrace();
         }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, postData,
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, confUrl, postData,
                 this::handleLoginResponse,
-                error -> Toast.makeText(getContext(), "Network Error: " + error.toString(), Toast.LENGTH_SHORT).show()) {
+                error -> Toast.makeText(getContext(),  getString(R.string.network_error) + ": " + error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -120,7 +120,8 @@ public class LoginFragment extends Fragment {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(getContext(), "JSON Parsing Error", Toast.LENGTH_SHORT).show();
+            // para mais fácil debug
+            // Toast.makeText(getContext(), "JSON Parsing Error", Toast.LENGTH_SHORT).show();
         }
     }
 

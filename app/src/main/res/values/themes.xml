@@ -1,9 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.KuantoGanha" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.KuantoGanha" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Cores primárias -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
+
+        <!-- Estilo do botão -->
+        <item name="buttonStyle">@style/BootstrapButton</item>
     </style>
 
-    <style name="Theme.KuantoGanha" parent="Base.Theme.KuantoGanha" />
+    <!-- Estilo do botão ao estilo Bootstrap -->
+    <style name="BootstrapButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/primary</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="cornerRadius">4dp</item>
+    </style>
 </resources>
