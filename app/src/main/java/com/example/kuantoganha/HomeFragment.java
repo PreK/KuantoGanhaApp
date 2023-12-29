@@ -1,6 +1,7 @@
 package com.example.kuantoganha;
 
-import android.os.AsyncTask;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +17,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.toolbox.StringRequest;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,15 +38,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFragment extends Fragment {
-
-    private Spinner spinnerDistrict;
     private BarChart barChart;
     private RecyclerView recyclerView;
     private JobAdapter adapter;
@@ -52,7 +49,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Outras inicializações
     }
 
     @Nullable
@@ -65,19 +61,30 @@ public class HomeFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-
-        spinnerDistrict = view.findViewById(R.id.spinnerDistricts);
         barChart = view.findViewById(R.id.barChart);
 
-        // Inicialize jobList com dados recebidos da API
         jobList = new ArrayList<>();
         adapter = new JobAdapter(jobList);
         recyclerView.setAdapter(adapter);
 
-        //setupSpinner();
-        loadJobsData();
-        setupChart();
+        Spinner spinnerDistricts = view.findViewById(R.id.spinnerDistricts);
+        spinnerDistricts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                DistrictItem selectedDistrict = (DistrictItem) parent.getItemAtPosition(position);
+                fetchChartData(selectedDistrict.getId());
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Nada a fazer aqui
+            }
+        });
+
+
+        loadJobsData();
+        fetchChartData("all");
+        loadDistrictsData();
         return view;
     }
 
@@ -96,10 +103,8 @@ public class HomeFragment extends Fragment {
 
                     getActivity().runOnUiThread(() -> {
                         try {
-                            // Processar a resposta e converter para objetos Job
                             List<Job> jobs = parseJobsJson(response);
 
-                            // Atualizar o RecyclerView com os dados dos jobs
                             updateRecyclerView(jobs);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -141,7 +146,7 @@ public class HomeFragment extends Fragment {
                 String district = jsonObject.getString("district");
                 String description = jsonObject.getString("description");
                 String startDate = jsonObject.getString("start_date");
-                String endDate = jsonObject.optString("end_date", "N/A"); // Usando optString para lidar com valores nulos
+                String endDate = jsonObject.optString("end_date", "N/A");
                 jobs.add(new Job(title, district, description, startDate, endDate));
             }
         } catch (JSONException e) {
@@ -156,23 +161,182 @@ public class HomeFragment extends Fragment {
     }
 
 
-    private void setupChart() {
-        // Configurar o gráfico inicialmente, os dados serão atualizados depois
-        List<BarEntry> entries = new ArrayList<>();
-        BarDataSet dataSet = new BarDataSet(entries, "Salário Médio");
-        BarData barData = new BarData(dataSet);
+    private void fetchChartData(String district) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(Config.urlDistricts + district);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream responseStream = connection.getInputStream();
+                    String response = streamToString(responseStream);
+
+                    getActivity().runOnUiThread(() -> {
+                        try {
+                            List<JobGraph> jobs = parseChartData(response);
+                            updateChart(jobs);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(getActivity(), getString(R.string.error_processing_data), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getActivity(), getString(R.string.error_fetching_data), Toast.LENGTH_LONG).show();
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(getActivity(), getString(R.string.network_error), Toast.LENGTH_LONG).show();
+                });
+            }
+        }).start();
+    }
+
+    private List<JobGraph> parseChartData(String jsonResponse) {
+        List<JobGraph> jobs = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(jsonResponse);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String title = jsonObject.getString("title");
+                float salary = (float) jsonObject.getDouble("averagesalary");
+                jobs.add(new JobGraph(title, salary));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jobs;
+    }
+
+    private void updateChart(List<JobGraph> jobs) {
+
+        boolean darkTheme = (getActivity().getResources().getConfiguration().uiMode &
+                Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+
+        int textColor = darkTheme ? Color.WHITE : Color.BLACK;
+
+        ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+        for (int i = 0; i < jobs.size(); i++) {
+            JobGraph job = jobs.get(i);
+            ArrayList<BarEntry> entries = new ArrayList<>();
+            entries.add(new BarEntry(i, job.getSalary()));
+
+            BarDataSet dataSet = new BarDataSet(entries, job.getTitle());
+            dataSet.setColor(getRandomColor());
+            dataSets.add(dataSet);
+        }
+
+        BarData barData = new BarData(dataSets);
         barChart.setData(barData);
 
-        // Carregar dados do gráfico
-        fetchChartData();
+
+        YAxis leftAxis = barChart.getAxisLeft();
+        leftAxis.setDrawLabels(true);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setAxisMinimum(0f);
+
+
+        YAxis rightAxis = barChart.getAxisRight();
+        rightAxis.setEnabled(false);
+        XAxis topAxis = barChart.getXAxis();
+        topAxis.setEnabled(false);
+
+
+        Legend legend = barChart.getLegend();
+        legend.setEnabled(true);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        legend.setDrawInside(false);
+
+        barChart.getAxisLeft().setTextColor(textColor);
+        barChart.getAxisRight().setTextColor(textColor);
+        barChart.getXAxis().setTextColor(textColor);
+        barChart.getLegend().setTextColor(textColor);
+
+
+        barChart.getDescription().setEnabled(false);
+
+
+        for (IBarDataSet dataSet : barChart.getData().getDataSets()) {
+            dataSet.setValueTextColor(textColor);
+            dataSet.setValueTextSize(10f);
+        }
+
+        barChart.invalidate();
     }
 
-    private void fetchChartData() {
-        // Implementar a lógica para carregar os dados do gráfico
+    private int getRandomColor() {
+        Random rnd = new Random();
+        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
     }
 
-    private void fetchDistricts() {
+    private void loadDistrictsData() {
+        new Thread(() -> {
+            try {
+                URL url = new URL(Config.urlSpinner);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
 
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream responseStream = connection.getInputStream();
+                    String response = streamToString(responseStream);
 
+                    getActivity().runOnUiThread(() -> {
+                        try {
+                            List<DistrictItem> districtItems = new ArrayList<>();
+                            districtItems.add(new DistrictItem("all", getString(R.string.all_districts)));
+
+                            JSONArray jsonArray = new JSONArray(response);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String id = jsonObject.getString("district");
+                                String name = jsonObject.getString("district");
+                                districtItems.add(new DistrictItem(id, name));
+                            }
+
+                            ArrayAdapter<DistrictItem> adapter = new ArrayAdapter<>(
+                                    getActivity(),
+                                    android.R.layout.simple_spinner_item,
+                                    districtItems);
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            Spinner spinnerDistricts = getActivity().findViewById(R.id.spinnerDistricts);
+                            spinnerDistricts.setAdapter(adapter);
+
+                            spinnerDistricts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                @Override
+                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    DistrictItem selectedDistrict = (DistrictItem) parent.getItemAtPosition(position);
+                                    fetchChartData(selectedDistrict.getId());
+                                }
+
+                                @Override
+                                public void onNothingSelected(AdapterView<?> parent) {
+                                    // Nada a fazer aqui
+                                }
+                            });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getActivity(), getString(R.string.error_processing_data), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getActivity(), getString(R.string.error_fetching_data), Toast.LENGTH_LONG).show();
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(getActivity(), getString(R.string.network_error), Toast.LENGTH_LONG).show();
+                });
+            }
+        }).start();
     }
 }

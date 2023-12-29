@@ -9,9 +9,7 @@ import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-/*  para resolver: android Constant expression required
-    adicionar em gradle.properties » android.nonFinalResIds=false
-*/
+
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
@@ -30,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                // Trate os cliques dos itens do menu aqui
+
                 switch (item.getItemId()) {
                     case R.id.nav_logout:
                         UserManager userManager = new UserManager(getApplicationContext());
@@ -54,11 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
     //
     public void loadFragment(Fragment fragment) {
-        // Carregar fragment
+
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
         }
-        // Carregar menu consoante o framgment
+
         if (fragment instanceof HomeFragment) {
             try {
                 bottomNav.getMenu().clear();
@@ -66,6 +64,18 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             bottomNav.inflateMenu(R.menu.logged_in_menu);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
+        }
+        if (fragment instanceof LoginFragment) {
+            try {
+                bottomNav.getMenu().clear();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            bottomNav.inflateMenu(R.menu.menu_main);
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment)
@@ -80,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         boolean isLoggedIn = preferencesManager.isLoggedIn();
 
         if (isLoggedIn) {
-            loadFragment(new HomeFragment()); // Carregar HomeFragment
+            loadFragment(new HomeFragment());
         }
     }
 

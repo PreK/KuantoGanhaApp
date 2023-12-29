@@ -24,13 +24,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link RegisterFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class RegisterFragment extends Fragment {
 
     private EditText editTextUsername, editTextPassword, editTextEmail, editTextConfirmPassword;
@@ -96,7 +90,7 @@ public class RegisterFragment extends Fragment {
 
                     getActivity().runOnUiThread(() -> {
                         Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
-                        if (response.contains("success")) { // Verifique se a resposta contém a palavra "success"
+                        if (response.contains("success")) {
                             if (getActivity() instanceof MainActivity) {
                                 ((MainActivity) getActivity()).onRegistrationSuccess();
                             }
@@ -125,9 +119,5 @@ public class RegisterFragment extends Fragment {
             stringBuilder.append(line).append('\n');
         }
         return stringBuilder.toString();
-    }
-
-    public interface OnRegistrationCompleteListener {
-        void onRegistrationComplete();
     }
 }

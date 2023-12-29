@@ -12,4 +12,12 @@
     <string name="register">registar</string>
     <string name="login">Entrar</string>
     <string name="ConfirmPassword">Confirmar Password</string>
+    <string name="error_during_registration">Erro durante o registo</string>
+    <string name="error_fetching_data">Erro ao descarregar os dados</string>
+    <string name="error_processing_data">Erro a processar os dados</string>
+    <string name="all_districts">Todos os Distritos</string>
+    <string name="error_loading_districts">Erro ao carregar os distritos</string>
+    <string name="error_fetching_districts">Erro a descarregar os distritos</string>
+    <string name="Salary_Gross_Average">Salário Médio Bruto €</string>
+    <string name="Last_20_Professions_added">Últimas 20 Profissões Adicionadas</string>
 </resources>

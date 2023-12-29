@@ -12,7 +12,7 @@ public class UserManager {
     private final SharedPreferencesManager preferencesManager;
 
     public UserManager(Context context) {
-        // Inicializa o SharedPreferencesManager
+
         preferencesManager = new SharedPreferencesManager((Context) context);
     }
 
@@ -23,10 +23,10 @@ public class UserManager {
             AppCompatActivity activity = (AppCompatActivity) context;
             preferencesManager.setLoggedIn(false);
 
-            // Limpa a pilha de fragmentos
+
             activity.getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-            // Redirect para o LoginFragment
+
             activity.getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new LoginFragment())
                     .commit();
